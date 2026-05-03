@@ -1,0 +1,195 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>IC Auto Cropper</title>
+    <link rel="stylesheet" href="style.css">
+    
+    <!-- PDF.js for handling PDF uploads -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/pdf.js/2.16.105/pdf.min.js"></script>
+    <script>
+        // Configure PDF.js worker
+        pdfjsLib.GlobalWorkerOptions.workerSrc = 'https://cdnjs.cloudflare.com/ajax/libs/pdf.js/2.16.105/pdf.worker.min.js';
+    </script>
+    <!-- jsPDF for PDF export -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+</head>
+<body>
+
+    <header>
+        <h1>IC Auto Cropper</h1>
+        <p class="subtitle">Process both sides of your IC and export to a single standard-sized PDF.</p>
+    </header>
+
+    <main class="container">
+        
+        <!-- Tabs -->
+        <div class="tabs">
+            <button class="tab-btn active" data-side="front">Front IC</button>
+            <button class="tab-btn" data-side="back">Back IC</button>
+        </div>
+
+        <div id="side-front" class="side-panel active">
+            <!-- Upload Section -->
+            <section class="upload-section" id="uploadSection-front">
+                <div class="dropzone" id="dropzone-front">
+                    <div class="dropzone-icon">📄</div>
+                    <div class="dropzone-text">Drag & Drop Front IC Image or PDF here</div>
+                    <div class="dropzone-subtext">or click to browse</div>
+                    <input type="file" id="fileInput-front" accept="image/jpeg, image/png, application/pdf">
+                </div>
+                <div style="text-align: center; margin-top: 1rem;">
+                    <button id="btnCamera-front" class="btn btn-primary" style="margin: 0 auto;">
+                        <span>📷</span> Use Camera
+                    </button>
+                </div>
+            </section>
+
+            <!-- Results Section -->
+            <section class="results-section" id="resultsSection-front">
+                <div class="previews">
+                    <div class="preview-card">
+                        <h3 style="margin-bottom: 0.5rem;">Original Image</h3>
+                        <p style="font-size: 0.8rem; color: var(--text-secondary); margin-bottom: 1rem;">Drag the 4 green corners to adjust the crop perfectly.</p>
+                        <div class="canvas-container">
+                            <canvas id="canvasInput-front"></canvas>
+                        </div>
+                        <button id="btnConfirmCrop-front" class="btn btn-primary" style="margin-top: 1rem; width: 100%; justify-content: center;">Apply Crop</button>
+                    </div>
+                    
+                    <div class="preview-card">
+                        <h3>Processed IC (8.6 x 5.4 Ratio)</h3>
+                        <div class="canvas-container">
+                            <canvas id="canvasOutput-front"></canvas>
+                        </div>
+                        <div class="controls" style="margin-top: 1rem; text-align: left;">
+                            <button id="btnCopyToBack" class="btn btn-primary" style="width: 100%; justify-content: center; margin-bottom: 1rem; background-color: #f59e0b; border-color: #f59e0b; box-shadow: 0 4px 14px 0 rgba(245, 158, 11, 0.39);">
+                                <span>📄</span> Use this Image for Back IC
+                            </button>
+                            <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 0.5rem;">
+                                <label style="font-size: 0.9rem; font-weight: 600;">Adjustments</label>
+                                <div>
+                                    <button id="btnRemoveBg-front" class="btn btn-secondary" style="padding: 0.25rem 0.75rem; font-size: 0.8rem; margin-right: 0.5rem;">Remove BG</button>
+                                    <button id="btnBlackWhite-front" class="btn btn-secondary" style="padding: 0.25rem 0.75rem; font-size: 0.8rem;">B&W Mode</button>
+                                </div>
+                            </div>
+                            <label for="brightnessSlider-front" style="font-size: 0.8rem; color: var(--text-secondary);">Brightness: <span id="brightnessValue-front">100</span>%</label>
+                            <input type="range" id="brightnessSlider-front" min="50" max="200" value="100" style="width: 100%; margin-bottom: 0.5rem;">
+                            
+                            <label for="contrastSlider-front" style="font-size: 0.8rem; color: var(--text-secondary);">Contrast: <span id="contrastValue-front">100</span>%</label>
+                            <input type="range" id="contrastSlider-front" min="50" max="200" value="100" style="width: 100%;">
+                        </div>
+                    </div>
+                </div>
+                <div style="text-align: center; margin-top: 1rem;">
+                    <button id="btnTryAnother-front" class="btn btn-secondary btn-sm">↺ Re-upload Front IC</button>
+                </div>
+            </section>
+        </div>
+
+        <div id="side-back" class="side-panel">
+            <!-- Upload Section -->
+            <section class="upload-section" id="uploadSection-back">
+                <div class="dropzone" id="dropzone-back">
+                    <div class="dropzone-icon">📄</div>
+                    <div class="dropzone-text">Drag & Drop Back IC Image or PDF here</div>
+                    <div class="dropzone-subtext">or click to browse</div>
+                    <input type="file" id="fileInput-back" accept="image/jpeg, image/png, application/pdf">
+                </div>
+                <div style="text-align: center; margin-top: 1rem;">
+                    <button id="btnCamera-back" class="btn btn-primary" style="margin: 0 auto;">
+                        <span>📷</span> Use Camera
+                    </button>
+                </div>
+            </section>
+
+            <!-- Results Section -->
+            <section class="results-section" id="resultsSection-back">
+                <div class="previews">
+                    <div class="preview-card">
+                        <h3 style="margin-bottom: 0.5rem;">Original Image</h3>
+                        <p style="font-size: 0.8rem; color: var(--text-secondary); margin-bottom: 1rem;">Drag the 4 green corners to adjust the crop perfectly.</p>
+                        <div class="canvas-container">
+                            <canvas id="canvasInput-back"></canvas>
+                        </div>
+                        <button id="btnConfirmCrop-back" class="btn btn-primary" style="margin-top: 1rem; width: 100%; justify-content: center;">Apply Crop</button>
+                    </div>
+                    
+                    <div class="preview-card">
+                        <h3>Processed IC (8.6 x 5.4 Ratio)</h3>
+                        <div class="canvas-container">
+                            <canvas id="canvasOutput-back"></canvas>
+                        </div>
+                        <div class="controls" style="margin-top: 1rem; text-align: left;">
+                            <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 0.5rem;">
+                                <label style="font-size: 0.9rem; font-weight: 600;">Adjustments</label>
+                                <div>
+                                    <button id="btnRemoveBg-back" class="btn btn-secondary" style="padding: 0.25rem 0.75rem; font-size: 0.8rem; margin-right: 0.5rem;">Remove BG</button>
+                                    <button id="btnBlackWhite-back" class="btn btn-secondary" style="padding: 0.25rem 0.75rem; font-size: 0.8rem;">B&W Mode</button>
+                                </div>
+                            </div>
+                            <label for="brightnessSlider-back" style="font-size: 0.8rem; color: var(--text-secondary);">Brightness: <span id="brightnessValue-back">100</span>%</label>
+                            <input type="range" id="brightnessSlider-back" min="50" max="200" value="100" style="width: 100%; margin-bottom: 0.5rem;">
+                            
+                            <label for="contrastSlider-back" style="font-size: 0.8rem; color: var(--text-secondary);">Contrast: <span id="contrastValue-back">100</span>%</label>
+                            <input type="range" id="contrastSlider-back" min="50" max="200" value="100" style="width: 100%;">
+                        </div>
+                    </div>
+                </div>
+                <div style="text-align: center; margin-top: 1rem;">
+                    <button id="btnTryAnother-back" class="btn btn-secondary btn-sm">↺ Re-upload Back IC</button>
+                </div>
+            </section>
+        </div>
+
+        <!-- Global Actions -->
+        <div class="global-actions">
+            <button id="btnDownloadPNGs" class="btn btn-secondary">
+                <span>↓</span> Download Images
+            </button>
+            <button id="btnExportPDF" class="btn btn-primary">
+                <span>📄</span> Export Combined PDF
+            </button>
+        </div>
+
+        <!-- Camera Modal -->
+        <div class="camera-modal" id="cameraModal">
+            <div class="camera-container">
+                <div class="camera-header">
+                    <h2>Capture IC</h2>
+                    <button id="btnCloseCamera" class="btn-icon">✖</button>
+                </div>
+                <div class="camera-view-wrapper">
+                    <video id="cameraVideo" autoplay playsinline></video>
+                    <div id="cameraOverlay" class="camera-overlay">
+                        <div class="ic-guide-frame"></div>
+                    </div>
+                    <div id="cameraStatus" class="camera-status warning">Initializing...</div>
+                </div>
+                <div class="camera-controls">
+                    <button id="btnCaptureCamera" class="btn btn-primary btn-large" style="width: 100%; justify-content: center; padding: 1rem; font-size: 1.2rem;">
+                        📸 Capture Photo
+                    </button>
+                </div>
+                <!-- Hidden canvas for processing frames -->
+                <canvas id="cameraCanvas" style="display: none;"></canvas>
+            </div>
+        </div>
+
+        <!-- Loading Indicator -->
+        <div class="loading-overlay" id="loadingOverlay">
+            <div class="spinner"></div>
+            <p id="loadingText">Processing...</p>
+        </div>
+
+        <!-- Status Message Box -->
+        <div id="statusMessage" class="status-message"></div>
+
+    </main>
+
+    <!-- OpenCV.js -->
+    <script async src="https://docs.opencv.org/4.8.0/opencv.js" onload="window.onOpenCvReady();" onerror="window.onOpenCvError();"></script>
+    <script src="app.js"></script>
+</body>
+</html>
