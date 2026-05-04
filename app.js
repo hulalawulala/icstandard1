@@ -504,13 +504,13 @@ function orderPoints(pts) {
 
 function scoreFrontIC(pts, src) {
     // Warp Perspective
-    let targetW = 860;
-    let targetH = 540;
+    let targetW = 890;
+    let targetH = 560;
     let dX = pts[1].x - pts[0].x;
     let dY = pts[1].y - pts[0].y;
     let len1 = Math.sqrt(dX*dX + dY*dY);
     let len2 = Math.sqrt(Math.pow(pts[3].x - pts[0].x, 2) + Math.pow(pts[3].y - pts[0].y, 2));
-    if (len2 > len1) { targetW = 540; targetH = 860; }
+    if (len2 > len1) { targetW = 560; targetH = 890; }
     
     let srcTri = cv.matFromArray(4, 1, cv.CV_32FC2, [pts[0].x, pts[0].y, pts[1].x, pts[1].y, pts[2].x, pts[2].y, pts[3].x, pts[3].y]);
     let dstTri = cv.matFromArray(4, 1, cv.CV_32FC2, [0, 0, targetW, 0, targetW, targetH, 0, targetH]);
@@ -796,9 +796,9 @@ document.getElementById('btnExportPDF').addEventListener('click', () => {
     });
     
     // A4 size is 210 x 297 mm
-    // Malaysian IC standard size is 86mm x 54mm
-    const icWidth = 86;
-    const icHeight = 54;
+    // Malaysian IC standard size is 89mm x 546mm
+    const icWidth = 89;
+    const icHeight = 56;
     
     // Center alignment
     const xPos = (210 - icWidth) / 2;
